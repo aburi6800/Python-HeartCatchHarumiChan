@@ -178,26 +178,25 @@ def game():
 # 画面描画
 ############################################################################### 
 def draw():
-	global photoImage
+    global photoImage
 
     # canvasのイメージ削除
-	canvas.delete("SCREEN")
+    canvas.delete("SCREEN")
 
-
-	if gameStatus == GAMESTATUS_TITLE:
-		# タイトル
-		img_screen = drawTitle()
+    if gameStatus == GAMESTATUS_TITLE:
+        # タイトル
+        img_screen = drawTitle()
 
 #    else:
 #        # ゲーム画面
 #        img_screen = drawGame()
 
-	# 画面イメージを拡大
-	img_screen = img_screen.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
+    # 画面イメージを拡大
+    img_screen = img_screen.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
 
-	# オフスクリーンでPhotoImage生成
-	photoImage = ImageTk.PhotoImage(img_screen)
-	canvas.create_image((img_screen.width / 2, img_screen.height / 2), image = photoImage, tag = "SCREEN")
+    # オフスクリーンでPhotoImage生成
+    photoImage = ImageTk.PhotoImage(img_screen)
+    canvas.create_image((img_screen.width / 2, img_screen.height / 2), image = photoImage, tag = "SCREEN")
 
 
 ############################################################################### 
@@ -205,13 +204,16 @@ def draw():
 ############################################################################### 
 def drawTitle():
 
-	# 画面イメージ作成
-	img_screen = img_bg.copy()
-	writeText(img_screen, 0, 0, (0x97, 0x20, 0x88, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x80, 0x80, 0xEE), COLOR_2)
-	writeText(img_screen, 0, 1, (0x97, 0x20, 0x88, 0x95, 0x95, 0x95, 0x97, 0xEF, 0x20, 0x20, 0xE9, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95), COLOR_2)
-	writeText(img_screen, 0, 2, (0xEE, 0x20, 0xEF, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x20, 0xD4, 0x20, 0xC2, 0x20, 0x95, 0x9B, 0x20), COLOR_2)
+    # 画面イメージ作成
+    img_screen = img_bg.copy()
+    writeText(img_screen, 0, 0, (0x97, 0x20, 0x88, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x80, 0x80, 0xEE), COLOR_2)
+    writeText(img_screen, 0, 1, (0x97, 0x20, 0x88, 0x95, 0x95, 0x95, 0x97, 0xEF, 0x20, 0x20, 0xE9, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95), COLOR_2)
+    writeText(img_screen, 0, 2, (0xEE, 0x20, 0xEF, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x20, 0xD4, 0x20, 0xC2, 0x20, 0x95, 0x9B, 0x20), COLOR_2)
 
-	return img_screen
+    img_screen.paste(img_harumi00, (gPos(12), gPos(16)))
+    writeText(img_screen, 11, 21, (0xCA, 0xD9, 0xD0, 0xC1, 0xAC, 0xDD), COLOR_3)
+
+    return img_screen
 
 
 ############################################################################### 
@@ -219,10 +221,10 @@ def drawTitle():
 ############################################################################### 
 def drawGame():
 
-	# オフスクリーン作成
-	img_screen = img_bg.copy()
+    # オフスクリーン作成
+    img_screen = img_bg.copy()
 
-	return img_screen
+    return img_screen
 
 
 ############################################################################### 
@@ -286,6 +288,9 @@ canvas.pack()
 
 # BG生成
 img_bg = Image.new("RGBA", (VRM_WIDTH * 8, VRM_HEIGHT * 8), (0, 0, 0))
+
+# はるみちゃん（タイトル）
+img_harumi00 = loadImage(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
 
 # フォントイメージ
 img_fonts = loadImage(basePath + os.sep + "Images" + os.sep + "p8font.png")
