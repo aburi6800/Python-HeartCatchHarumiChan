@@ -77,6 +77,13 @@ gameTime = 0
 key = ""
 keyOff = True
 
+# プテラノドンの座標
+ptera_x = 25
+ptera_y = 16
+ptera_old_x = 0
+ptera_old_y = 0
+ptera_direction = 1
+
 
 ############################################################################### 
 # メイン処理
@@ -88,13 +95,13 @@ def main():
     draw()
 
     # 処理
-#    if gameStatus == GAMESTATUS_TITLE:
-#        # タイトル処理
-#        title()
+    if gameStatus == GAMESTATUS_TITLE:
+        # タイトル処理
+        title()
 
 #    else:
 #        # ゲームメイン処理
-#        game()		
+#       game()		
 
     # 時間進行
     gameTime = gameTime + 1
@@ -104,7 +111,7 @@ def main():
         key = ""
         keyOff = False
 
-    root.after(50, main)
+    root.after(100, main)
 
 
 ############################################################################### 
@@ -140,7 +147,15 @@ def changeGameStatus(status):
 # タイトル処理
 ############################################################################### 
 def title():
-    global key
+    global key, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
+
+    # テスト：プテラノドンを動かす
+    ptera_old_x = ptera_x
+    ptera_old_y = ptera_y
+    ptera_direction = 1 - ptera_direction
+    ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
+    if ptera_x > 13 and ptera_x < 33:
+        ptera_x = ptera_x + (random.randint(0, 2) - 1)
 
 #    if key == KEY_SPACE:
 #        # ゲーム初期化
@@ -185,14 +200,14 @@ def draw():
 
     if gameStatus == GAMESTATUS_TITLE:
         # タイトル
-        img_screen = drawTitle()
+        drawTitle()
 
 #    else:
 #        # ゲーム画面
 #        img_screen = drawGame()
 
     # 画面イメージを拡大
-    img_screen = img_screen.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
+    img_screen = img_text.resize((img_text.width * 2, img_text.height * 2), Image.NEAREST)
 
     # オフスクリーンでPhotoImage生成
     photoImage = ImageTk.PhotoImage(img_screen)
@@ -203,28 +218,33 @@ def draw():
 # タイトル画面描画
 ############################################################################### 
 def drawTitle():
+    global img_text
 
     # 画面イメージ作成
-    img_screen = img_bg.copy()
-    writeText(img_screen, 0, 0, (0x97, 0x20, 0x88, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x80, 0x80, 0xEE), COLOR_2)
-    writeText(img_screen, 0, 1, (0x97, 0x20, 0x88, 0x95, 0x95, 0x95, 0x97, 0xEF, 0x20, 0x20, 0xE9, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95), COLOR_2)
-    writeText(img_screen, 0, 2, (0xEE, 0x20, 0xEF, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x20, 0xD4, 0x20, 0xC2, 0x20, 0x95, 0x9B, 0x20), COLOR_2)
+    if gameTime == 1:
+        cls()
+        writeText(img_text, 0, 0, (0x97, 0x20, 0x88, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x80, 0x80, 0xEE), COLOR_2)
+        writeText(img_text, 0, 1, (0x97, 0x20, 0x88, 0x95, 0x95, 0x95, 0x97, 0xEF, 0x20, 0x20, 0xE9, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95), COLOR_2)
+        writeText(img_text, 0, 2, (0xEE, 0x20, 0xEF, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x20, 0xD4, 0x20, 0xC2, 0x20, 0x95, 0x9B, 0x20), COLOR_2)
+        # ハルミチャン
+        img_text.paste(img_harumi00, (gPos(2), gPos(16)))
+        writeText(img_text, 1, 21, (0xCA, 0xD9, 0xD0, 0xC1, 0xAC, 0xDD), COLOR_3)
 
-    img_screen.paste(img_harumi00, (gPos(12), gPos(16)))
-    writeText(img_screen, 11, 21, (0xCA, 0xD9, 0xD0, 0xC1, 0xAC, 0xDD), COLOR_3)
+    # テスト：プテラノドンを動かしてみる
+    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
 
-    return img_screen
+    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
+    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
 
 
 ############################################################################### 
 # ゲーム画面描画
 ############################################################################### 
 def drawGame():
+    global img_text
 
-    # オフスクリーン作成
-    img_screen = img_bg.copy()
-
-    return img_screen
+    pass
 
 
 ############################################################################### 
@@ -238,6 +258,9 @@ def drawGame():
 def writeText(img, x, y, s, c=COLOR_7):
 
     # 指定色で塗りつぶした矩形を作成
+    if type(s) is int:
+        s = [s]
+
     imgBack = Image.new("RGBA", (gPos(len(s)), 8), COLOR[c])
     
 	# 文字を描画
@@ -252,6 +275,19 @@ def writeText(img, x, y, s, c=COLOR_7):
 
     # 文字のパターンでマスクした画像を貼り付け
     img.paste(imgBack, (gPos(x), gPos(y)), imgBack)
+
+
+############################################################################### 
+# テキスト画面クリア
+############################################################################### 
+def cls():
+    global vrm, img_text
+
+    # 仮想VRAM配列を初期化
+    vrm = [blankRow] * VRM_HEIGHT
+
+    # Imageを初期化
+    img_text = img_text_blank
 
 
 ############################################################################### 
@@ -278,7 +314,7 @@ def gPos(value):
 # Windowを生成
 root = tkinter.Tk()
 root.geometry(str(VRM_WIDTH * 8 * 2) + "x" + str(VRM_HEIGHT * 8 * 2))
-root.title("HEART CATCH HARUMI-CHAN on Python")
+root.title("HEART CATCH HARUMI-CHAN on ptera_ython")
 root.bind("<KeyPress>", pressKey)
 root.bind("<KeyRelease>", releaseKey)
 
@@ -287,7 +323,10 @@ canvas = tkinter.Canvas(width = (VRM_WIDTH * 8 * 2), height = (VRM_HEIGHT * 8 * 
 canvas.pack()
 
 # BG生成
-img_bg = Image.new("RGBA", (VRM_WIDTH * 8, VRM_HEIGHT * 8), (0, 0, 0))
+img_text_blank = Image.new("RGBA", (VRM_WIDTH * 8, VRM_HEIGHT * 8), (0, 0, 0))
+
+# テキスト画面のImage
+img_text = img_text_blank
 
 # はるみちゃん（タイトル）
 img_harumi00 = loadImage(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
@@ -303,6 +342,13 @@ for h in range(0, img_fonts.height, 8):
         img_font.append(img)
         # マスク画像生成
         img_font_mask.append(ImageOps.invert(img.convert("L")))
+
+# プテラノドンのキャラクタ定義
+ptera = (
+    ( (0x20, 0x20, 0x20, 0x20, 0x20), (0x2E) ),
+    ( (0x94, 0xEF, 0x5E, 0xEE, 0x94), (0x56) ),
+    ( (0xEE, 0xEF, 0x5E, 0xEE, 0xEF), (0x56) )
+)
 
 # メイン処理
 main()
