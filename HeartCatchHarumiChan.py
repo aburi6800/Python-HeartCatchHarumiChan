@@ -3,7 +3,8 @@ import tkinter
 import random
 import os
 import csv
-from PIL import Image, ImageTk, ImageDraw, ImageOps
+import numpy
+from PIL import Image, ImageTk, ImageDraw, ImageOps, ImageChops
 
 ############################################################################### 
 # 初期処理
@@ -11,7 +12,7 @@ from PIL import Image, ImageTk, ImageDraw, ImageOps
 
 # 仮想VRAMのサイズ
 VRM_WIDTH = 40
-VRM_HEIGHT = 24
+VRM_HEIGHT = 25
 
 # ゲームの状態
 GAMESTATUS_TITLE = 0
@@ -77,6 +78,14 @@ gameTime = 0
 key = ""
 keyOff = True
 
+# 画面フラッシュ制御用
+flash1_flg = False
+flash2_flg = False
+
+# タイトルアニメーション用
+title_x = 0
+harumi_y = 0
+
 # プテラノドンの座標
 ptera_x = 25
 ptera_y = 16
@@ -111,7 +120,7 @@ def main():
         key = ""
         keyOff = False
 
-    root.after(100, main)
+    root.after(50, main)
 
 
 ############################################################################### 
@@ -147,15 +156,7 @@ def changeGameStatus(status):
 # タイトル処理
 ############################################################################### 
 def title():
-    global key, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
-
-    # テスト：プテラノドンを動かす
-    ptera_old_x = ptera_x
-    ptera_old_y = ptera_y
-    ptera_direction = 1 - ptera_direction
-    ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
-    if ptera_x > 13 and ptera_x < 33:
-        ptera_x = ptera_x + (random.randint(0, 2) - 1)
+    global key
 
 #    if key == KEY_SPACE:
 #        # ゲーム初期化
@@ -185,15 +186,29 @@ def initializeRound():
 # ゲーム処理
 ############################################################################### 
 def game():
+    global key, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
 
-    pass
+    # テスト：プテラノドンを動かす
+    ptera_old_x = ptera_x
+    ptera_old_y = ptera_y
+    ptera_direction = 1 - ptera_direction
+    ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
+    if ptera_x > 13 and ptera_x < 33:
+        ptera_x = ptera_x + (random.randint(0, 2) - 1)
+
+#    if key == KEY_SPACE:
+#        # ゲーム初期化
+#        initializeGame()
+#        changeGameStatus(GAMESTATUS_GAME)
+
+    key = ""
 
 
 ############################################################################### 
 # 画面描画
 ############################################################################### 
 def draw():
-    global photoImage
+    global photoImage, flash1_flg
 
     # canvasのイメージ削除
     canvas.delete("SCREEN")
@@ -206,8 +221,23 @@ def draw():
 #        # ゲーム画面
 #        img_screen = drawGame()
 
+    # 画面表示用イメージ生成
+    img_screen = img_text.copy()
+
+    # フラッシュ１処理
+    # うまくいってない
+    if flash1_flg:
+        flash1_flg = False
+        plane = img_screen.split()
+        _r = plane[0].point(lambda _: 0x01 if _ > 0x01 else 0x00, mode = "1")
+        _g = plane[1].point(lambda _: 0x01 if _ > 0x01 else 0x00, mode = "1")
+        _b = plane[2].point(lambda _: 0x01 if _ > 0x01 else 0x00, mode = "1")
+        img_mask = ImageChops.logical_and(_r, _g)
+        img_mask = ImageChops.logical_and(img_mask, _b)
+        img_screen.paste(Image.new("RGB", img_text.size, (255, 255, 255)), mask = img_mask)
+
     # 画面イメージを拡大
-    img_screen = img_text.resize((img_text.width * 2, img_text.height * 2), Image.NEAREST)
+    img_screen = img_text.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
 
     # オフスクリーンでPhotoImage生成
     photoImage = ImageTk.PhotoImage(img_screen)
@@ -218,7 +248,7 @@ def draw():
 # タイトル画面描画
 ############################################################################### 
 def drawTitle():
-    global img_text
+    global img_text, title_x, harumi_y, flash1_flg
 
     # 画面イメージ作成
     if gameTime == 1:
@@ -226,16 +256,52 @@ def drawTitle():
         writeText(img_text, 0, 0, (0x97, 0x20, 0x88, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x80, 0x80, 0xEE), COLOR_2)
         writeText(img_text, 0, 1, (0x97, 0x20, 0x88, 0x95, 0x95, 0x95, 0x97, 0xEF, 0x20, 0x20, 0xE9, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x95, 0x8F, 0x95), COLOR_2)
         writeText(img_text, 0, 2, (0xEE, 0x20, 0xEF, 0x20, 0x20, 0x20, 0x97, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x20, 0xD4, 0x20, 0xC2, 0x20, 0x95, 0x9B, 0x20), COLOR_2)
-        # ハルミチャン
-        img_text.paste(img_harumi00, (gPos(2), gPos(16)))
-        writeText(img_text, 1, 21, (0xCA, 0xD9, 0xD0, 0xC1, 0xAC, 0xDD), COLOR_3)
+        title_x = -1
+        harumi_y = -1
 
-    # テスト：プテラノドンを動かしてみる
-    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
-    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+    # フラッシュ
+    if gameTime <= 8:
+        if gameTime % 2 == 0:
+            flash1_flg = True
 
-    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
-    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
+    # タイトル文字移動
+    if gameTime >= 10 and gameTime <= 38:
+        if gameTime == 10:
+            title_x = 28
+        writeText(img_text, title_x, 3, (0x20, 0x20, 0xEF, 0xED, 0x80, 0x20), COLOR_3)
+        writeText(img_text, title_x, 4, (0x20, 0x20, 0x20, 0x87, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x97, 0x20, 0x88, 0x20, 0x97, 0x97, 0x20, 0x20, 0x94, 0xEF, 0x20, 0x20, 0x80, 0x80, 0xEE, 0x20, 0x20, 0x20, 0x95, 0x20, 0x97, 0x20), COLOR_3)
+        writeText(img_text, title_x, 5, (0x9C, 0xE0, 0xE0, 0xEF, 0xEF, 0xE0, 0xE0, 0x9D, 0xE0, 0x20, 0x97, 0x20, 0x88, 0x20, 0x97, 0x97, 0x20, 0x20, 0x94, 0xEF, 0x20, 0x20, 0x95, 0x8F, 0x95, 0x20, 0x20, 0x20, 0x20, 0x20, 0x97, 0x20), COLOR_3)
+        writeText(img_text, title_x, 6, (0x9E, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0x9F, 0xE0, 0x20, 0xEE, 0x20, 0xEF, 0x20, 0xEE, 0x97, 0xEE, 0x20, 0x94, 0xEF, 0x20, 0x20, 0x95, 0x9B, 0x20, 0x20, 0xD4, 0x20, 0x80, 0x80, 0xEE, 0x20), COLOR_3)
+        title_x = (title_x - 1) if title_x > 0 else 0
+
+
+    # ハルミチャン落下
+    if gameTime >= 38 and gameTime <= 50:
+        if gameTime == 38:
+            harumi_y = 3
+        img_text.paste(img_harumi00, (gPos(2), gPos(harumi_y)))
+        harumi_y = (harumi_y + 1) if harumi_y < 16 else 15
+
+    # タイトル
+    if gameTime == 51:
+        # UFO消去
+        writeText(img_text,  0,  5, [0x20] * 9)
+        writeText(img_text,  0,  6, [0x20] * 9)
+        # プテラノドン
+        writeText(img_text, 27, 15, ptera[1][0], COLOR_1)
+        writeText(img_text, 29, 16, ptera[1][1], COLOR_1)
+        # "プログラミング レッスン"
+        writeText(img_text, 10,  9, (0x3D, 0x20, 0xCC, 0xDF, 0xDB, 0xB8, 0xDE, 0xD7, 0xD0, 0xDD, 0xB8, 0xDE, 0x20, 0xE9, 0x20, 0xDA, 0xAF, 0xBD, 0xDD, 0x20, 0x3D), COLOR_6) 
+        # "ハルミチャン"
+        writeText(img_text,  1, 21, (0xCA, 0xD9, 0xD0, 0xC1, 0xAC, 0xDD), COLOR_7)
+        # "プテラノドン"
+        writeText(img_text, 24, 21, (0xCC, 0xDF, 0xC3, 0xD7, 0xC9, 0xC4, 0xDE, 0xDD), COLOR_7)
+        # "YOU!"
+        writeText(img_text, 18, 18, (0x3C, 0x20, 0x59, 0x4F, 0x55, 0x20, 0x21), COLOR_7)
+        # その他の表示
+        writeText(img_text, 13, 21, (0x31, 0x20, 0x3C, 0x2D, 0x3E, 0x20, 0x33), COLOR_7)
+        writeText(img_text, 10, 22, (0x42, 0x41, 0x4C, 0x4C, 0x20, 0x3D, 0x20, 0x53, 0x50, 0x41, 0x43, 0x45), COLOR_7)
+        writeText(img_text, 13, 24, (0x50, 0x55, 0x53, 0x48, 0x20, 0x5B, 0x53, 0x5D, 0x20, 0x21), COLOR_7)
 
 
 ############################################################################### 
@@ -244,7 +310,12 @@ def drawTitle():
 def drawGame():
     global img_text
 
-    pass
+    # プテラノドン消去
+    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+    # プテラノドン描画
+    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
+    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
 
 
 ############################################################################### 

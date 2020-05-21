@@ -91,9 +91,6 @@ def gPos(value):
 	return value * 8
 
 
-# BG生成
-img_bg = Image.new("RGBA", (VRM_WIDTH * 8, VRM_HEIGHT * 8), (0, 0, 0))
-
 # イメージをロード
 img_fonts = loadImage(basePath + os.sep + "Images" + os.sep + "p8font.png")
 img_font = []
@@ -106,9 +103,10 @@ for h in range(0, img_fonts.height, 8):
 		# マスク画像生成
 		img_font_mask.append(ImageOps.invert(img.convert("L")))
 
-offScreen = img_bg.copy()
-writeText(offScreen, 0, 0, (0x97, 0xED, 0x88), COLOR_3)
-writeText(offScreen, 0, 1, (0x20, 0x87, 0x20), COLOR_3)
-writeText(offScreen, 0, 2, (0xE4, 0x86, 0xE5), COLOR_3)
-writeText(offScreen, 0, 3, (0xEE, 0x96, 0x20), COLOR_3)
+offScreen = Image.new("RGBA", (gPos(3), gPos(5)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x20, 0x20), COLOR_3)
+writeText(offScreen, 0, 1, (0x97, 0xED, 0x88), COLOR_3)
+writeText(offScreen, 0, 2, (0x20, 0x87, 0x20), COLOR_3)
+writeText(offScreen, 0, 3, (0xE4, 0x86, 0xE5), COLOR_3)
+writeText(offScreen, 0, 4, (0xEE, 0x96, 0x20), COLOR_3)
 offScreen.save(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
