@@ -53,6 +53,9 @@ basePath = os.path.abspath(os.path.dirname(__file__))
 ############################################################################### 
 def writeText(img, x, y, s, c=COLOR_7):
 
+    if type(s) is int:
+        s = [s]
+
     # 指定色で塗りつぶした矩形を作成
     imgBack = Image.new("RGBA", (gPos(len(s)), 8), COLOR[c])
     
@@ -103,10 +106,114 @@ for h in range(0, img_fonts.height, 8):
 		# マスク画像生成
 		img_font_mask.append(ImageOps.invert(img.convert("L")))
 
+# はるみちゃん（タイトル用）
 offScreen = Image.new("RGBA", (gPos(3), gPos(5)), (0, 0, 0))
 writeText(offScreen, 0, 0, (0x20, 0x20, 0x20), COLOR_3)
 writeText(offScreen, 0, 1, (0x97, 0xED, 0x88), COLOR_3)
 writeText(offScreen, 0, 2, (0x20, 0x87, 0x20), COLOR_3)
 writeText(offScreen, 0, 3, (0xE4, 0x86, 0xE5), COLOR_3)
 writeText(offScreen, 0, 4, (0xEE, 0x96, 0x20), COLOR_3)
-offScreen.save(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
+#offScreen.save(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
+
+
+# YOU（タイトル用）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9E, 0x95, 0x9D, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0x20, 0x3F, 0x96, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x97, 0xEE, 0x86, 0xEF, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x20, 0x86, 0x97, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0xEE, 0x20, 0x88, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x88, 0x20, 0x88, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_00.png")
+
+# YOU（左）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9E, 0x95, 0x9D, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0x20, 0x3F, 0x96, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0xEE, 0x86, 0xEF, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x88, 0x86, 0x97, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0xEE, 0x20, 0x88, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x88, 0x20, 0x88, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_01.png")
+
+# YOU（左：投げる１）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x97, 0x9E, 0x95, 0x9D, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0xEF, 0x3F, 0x96, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0x20, 0x86, 0xEF, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x20, 0x86, 0x97, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0xEE, 0x20, 0x88, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x88, 0x20, 0x88, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_02.png")
+
+
+# YOU（左：投げる２）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9E, 0x95, 0x9D, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x94, 0xEF, 0x3F, 0x96, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0x20, 0x86, 0xEF, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x20, 0x86, 0x97, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0xEE, 0x20, 0x88, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x88, 0x20, 0x88, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_03.png")
+
+
+# YOU（右）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9C, 0x95, 0x9F, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0x96, 0x3F, 0x20, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0xEE, 0x86, 0xEF, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x88, 0x86, 0x97, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0x97, 0x20, 0xEF, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x97, 0x20, 0x97, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_04.png")
+
+
+# YOU（右：投げる１）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9C, 0x95, 0x9F, 0x88), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0x96, 0x3F, 0xEE, 0x20), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0xEE, 0x86, 0x20, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x88, 0x86, 0x20, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0x97, 0x20, 0xEF, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x97, 0x20, 0x97, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_05.png")
+
+
+# YOU（右：投げる２）
+offScreen = Image.new("RGBA", (gPos(5), gPos(6)), (0, 0, 0))
+writeText(offScreen, 0, 0, (0x20, 0x9C, 0x95, 0x9F, 0x20), COLOR_7)
+writeText(offScreen, 0, 1, (0x20, 0x96, 0x3F, 0xEE, 0x94), COLOR_7)
+writeText(offScreen, 0, 2, (0x20, 0xEE, 0x86, 0x20, 0x20), COLOR_7)
+writeText(offScreen, 0, 3, (0x20, 0x88, 0x86, 0x20, 0x20), COLOR_7)
+writeText(offScreen, 0, 4, (0x20, 0x97, 0x20, 0xEF, 0x20), COLOR_1)
+writeText(offScreen, 0, 5, (0x20, 0x97, 0x20, 0x97, 0x20), COLOR_1)
+
+writeText(offScreen, 2, 2, (0x86), COLOR_6)
+writeText(offScreen, 2, 3, (0x86), COLOR_6)
+
+offScreen.save(basePath + os.sep + "Images" + os.sep + "you_06.png")

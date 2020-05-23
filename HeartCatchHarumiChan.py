@@ -2,8 +2,6 @@ import time
 import tkinter
 import random
 import os
-import csv
-import numpy
 from PIL import Image, ImageTk, ImageDraw, ImageOps, ImageChops
 
 ############################################################################### 
@@ -63,13 +61,15 @@ basePath = os.path.abspath(os.path.dirname(__file__))
 
 # 空の仮想VRAM配列
 blankRow = [0] * VRM_WIDTH
+blankRow = [0] * VRM_WIDTH
+blankRow = [0] * VRM_WIDTH
 vrm = [blankRow] * VRM_HEIGHT
 
 # PhotoImageの保存用変数
 photoImage = ""
 
 # ゲームの状態管理用
-gameStatus = GAMESTATUS_TITLE
+gameStatus = GAMESTATUS_GAME
 
 # ゲームの経過時間管理用
 gameTime = 0
@@ -217,9 +217,9 @@ def draw():
         # タイトル
         drawTitle()
 
-#    else:
-#        # ゲーム画面
-#        img_screen = drawGame()
+    elif gameStatus == GAMESTATUS_GAME:
+        # ゲーム画面
+        img_screen = drawGame()
 
     # 画面表示用イメージ生成
     img_screen = img_text.copy()
@@ -297,7 +297,8 @@ def drawTitle():
         # "プテラノドン"
         writeText(img_text, 24, 21, (0xCC, 0xDF, 0xC3, 0xD7, 0xC9, 0xC4, 0xDE, 0xDD), COLOR_7)
         # "YOU!"
-        writeText(img_text, 18, 18, (0x3C, 0x20, 0x59, 0x4F, 0x55, 0x20, 0x21), COLOR_7)
+        img_text.paste(img_you[0], (gPos(14), gPos(14)))
+        writeText(img_text, 18, 18, ("< YOU!"), COLOR_7)
         # その他の表示
         writeText(img_text, 13, 21, (0x31, 0x20, 0x3C, 0x2D, 0x3E, 0x20, 0x33), COLOR_7)
         writeText(img_text, 10, 22, (0x42, 0x41, 0x4C, 0x4C, 0x20, 0x3D, 0x20, 0x53, 0x50, 0x41, 0x43, 0x45), COLOR_7)
@@ -310,19 +311,57 @@ def drawTitle():
 def drawGame():
     global img_text
 
-    # プテラノドン消去
-    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
-    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
-    # プテラノドン描画
-    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
-    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
+    # 画面イメージ作成
+    if gameTime == 1:
+        cls()
+        writeText(img_text, 0, 0, (0x5B, 0x3A, 0x53, 0x43, 0x4F, 0x52, 0x45, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x5D, 0x20, 0xE9, 0x20, 0xCA, 0xB0, 0xC4, 0x20, 0xB7, 0xAC, 0xAF, 0xC1, 0x20, 0x5B, 0x3A, 0x42, 0x49, 0x52, 0x44, 0x53, 0x20, 0x20, 0x20, 0x20, 0x5D), COLOR_7)
+        writeText(img_text, 0, 1, (0xE2, 0xE2, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE2, 0xE0, 0xE0, 0xE0, 0xE0, 0x20, 0x20, 0xCA, 0xD9, 0xD0, 0x20, 0xC1, 0xAC, 0xDD, 0x20, 0xE9, 0x20, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0), COLOR_7)
+        writeText(img_text, 0, 2, (0xE2, 0xE2, 0x20, 0x43, 0x48, 0x41, 0x4E, 0x43, 0x45, 0x20, 0x20, 0x20, 0xE2, 0x20, 0x20, 0x20, 0x20, 0x20, 0x50, 0x52, 0x4F, 0x47, 0x52, 0x41, 0x4D, 0x4D, 0x49, 0x4E, 0x47, 0x20, 0x4C, 0x45, 0x53, 0x53, 0x4F, 0x4E, 0x20, 0x20), COLOR_7)
+        writeText(img_text, 0, 3, (0xE2, 0xE2, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE2, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0), COLOR_7)
+        for i in range(6):
+            writeText(img_text, 0, 4 + i, (0x96, 0x96), COLOR_7)
+
+        writeText(img_text, 0, 10, (0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0xE5), COLOR_2)
+        writeText(img_text, 0, 11, (0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0xE5), COLOR_2)
+        writeText(img_text, 0, 12, (0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0xE5), COLOR_2)
+        writeText(img_text, 0, 13, (0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0xE5), COLOR_2)
+        writeText(img_text, 0, 14, (0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0xE5), COLOR_2)
+        writeText(img_text, 0, 15, (0x20, 0xEE, 0x96, 0xEF, 0x20, 0x20, 0x20, 0x20, 0x20, 0x87), COLOR_6)
+        writeText(img_text, 0, 16, (0xEC, 0xEC, 0xEC, 0xEC, 0xEC, 0x20, 0x20, 0x20, 0x20, 0x87), COLOR_6)
+
+        writeText(img_text, 0, 20, (0x20, 0x20, 0x20, 0x20, 0x9C, 0x95, 0x9D), COLOR_7)
+        writeText(img_text, 0, 21, (0x9D, 0x20, 0x20, 0x9C, 0x90, 0x9D, 0xE3), COLOR_7)
+        writeText(img_text, 0, 22, (0x96, 0x20, 0x20, 0x8F, 0x90, 0x90, 0x8F, 0x9D), COLOR_7)
+        writeText(img_text, 0, 23, (0x9E, 0x91, 0x20, 0xE1, 0xE0, 0xE0, 0xE3, 0x9E, 0x65), COLOR_7)
+
+        writeText(img_text, 5, 16, (0x9C, 0x95, 0x9D), COLOR_5)
+        writeText(img_text, 5, 17, (0x96, 0x9A, 0x96), COLOR_5)
+        writeText(img_text, 5, 18, (0x9E, 0x95, 0x9F), COLOR_5)
+
+        writeText(img_text, 1, 20, (0xED), COLOR_3)
+        writeText(img_text, 1, 21, (0x87, 0xEF), COLOR_3)
+        writeText(img_text, 1, 22, (0x87, 0xE5), COLOR_3)
+        writeText(img_text, 2, 23, (0xEF), COLOR_3)
+
+        for i in range(7):
+            writeText(img_text, 9, 17 + i, (0x87), COLOR_6)
+
+        for i in range(39):
+            writeText(img_text, i , 24, (0x85), COLOR_1)
+            
+
+#    # プテラノドン消去
+#    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+#    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+#    # プテラノドン描画
+#    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
+#    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
 
 
 ############################################################################### 
 # テキスト描画
 # 引数		img 貼り付け先のImageデータ
-#  			x テキスト座標系のx座標
-#			y テキスト座標系のy座標
+#  			x, y テキスト座標系の座標
 #			s 表示する文字データの配列（文字の場合は、文字コードに対応した文字を表示する）
 #           c 文字の表示色（省略時は白）
 ############################################################################### 
@@ -334,7 +373,7 @@ def writeText(img, x, y, s, c=COLOR_7):
 
     imgBack = Image.new("RGBA", (gPos(len(s)), 8), COLOR[c])
     
-	# 文字を描画
+    # 文字を描画
     for i in range(len(s)):
         if isinstance(s, str):
             o = ord(s[i]) - 32
@@ -401,6 +440,17 @@ img_text = img_text_blank
 
 # はるみちゃん（タイトル）
 img_harumi00 = loadImage(basePath + os.sep + "Images" + os.sep + "harumi_00.png")
+
+# YOU
+img_you = (
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_00.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_01.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_02.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_03.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_04.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_05.png"),
+    loadImage(basePath + os.sep + "Images" + os.sep + "you_06.png")
+)
 
 # フォントイメージ
 img_fonts = loadImage(basePath + os.sep + "Images" + os.sep + "p8font.png")
