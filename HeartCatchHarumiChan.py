@@ -97,9 +97,11 @@ you_x = 10
 you_v = 0
 
 # ボール
-ball_throw = False
+ball_status = 0
 ball_x = 0
 ball_y = 0
+ball_old_x = 0
+ball_old_y = 0
 
 # スコア
 score = 100
@@ -221,7 +223,7 @@ def initializeGame():
 # ゲーム再開
 ############################################################################### 
 def initializeRetry():
-    global ptera_x, ptera_y, ptera_old_x, ptera_old_y, ptera_direction, you_x, you_v, ball_throw, ball_x, ball_y
+    global ptera_x, ptera_y, ptera_old_x, ptera_old_y, ptera_direction, you_x, you_v, ball_status, ball_x, ball_y, ball_old_x, ball_old_y
 
     # プテラノドン
     ptera_x = 25
@@ -235,37 +237,56 @@ def initializeRetry():
     you_v = 0
 
     # ボール
-    ball_throw = False
+    ball_status = 0
     ball_x = 0
     ball_y = 0
+    ball_old_x = 0
+    ball_old_y = 0
 
 
 ############################################################################### 
 # ゲーム処理
 ############################################################################### 
 def game():
-    global key, you_x, you_v, ball_throw, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
+    global key, you_x, you_v, ball_status, ball_old_x, ball_old_y, ball_x, ball_y, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
 
-    # YOU操作
-    if key == KEY_LEFT and you_x > 10:
-        you_x = you_x - 1
-        you_v = -1
+    # ボールの処理
+    if ball_status > 0:
+        if ball_status == 4:
+            ball_status = 0
+        elif ball_status < 3:
+            ball_status = ball_status + 1
+        else:
+            ball_old_x = ball_x
+            ball_old_y = ball_y
+            ball_x = ball_x + you_v
+            ball_y = ball_y - 1
+            if ball_x < 12 or ball_x > 37 or ball_y < 5:
+                ball_status = 4
+            
+    else:
+        # YOU操作
+        if key == KEY_LEFT and you_x > 10:
+            you_x = you_x - 1
+            you_v = -1
 
-    if key == KEY_RIGHT and you_x < 36:
-        you_x = you_x + 1
-        you_v = 1
+        if key == KEY_RIGHT and you_x < 36:
+            you_x = you_x + 1
+            you_v = 1
 
-    if key == KEY_SPACE and ball_throw == False:
-        ball_throw = True
+        if key == KEY_SPACE and ball_status == False:
+            ball_status = 1
+            ball_x = you_x + (5 if you_v == 1 else 1)
+            ball_y = 18
 
-    # プテラノドンを動かす
-    if gameTime % 2 == 0:
-        ptera_old_x = ptera_x
-        ptera_old_y = ptera_y
-        ptera_direction = 1 - ptera_direction
-        ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
-        if ptera_x > 13 and ptera_x < 33:
-            ptera_x = ptera_x + (random.randint(0, 2) - 1)
+        # プテラノドンを動かす
+        if gameTime % 2 == 0:
+            ptera_old_x = ptera_x
+            ptera_old_y = ptera_y
+            ptera_direction = 1 - ptera_direction
+            ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
+            if ptera_x > 13 and ptera_x < 33:
+                ptera_x = ptera_x + (random.randint(0, 2) - 1)
 
     key = ""
 
@@ -407,14 +428,26 @@ def drawGame():
             writeText(img_text, i , 24, (0x85), COLOR_1)            
 
     # YOU描画
-    img_text.paste(img_you[2 if you_v == 1 else 1], (gPos(you_x + 1), gPos(18)))
+    if ball_status == 1:
+        img_text.paste(img_you[5 if you_v == 1 else 3], (gPos(you_x + 1), gPos(18)))
+    elif ball_status > 1:
+        img_text.paste(img_you[6 if you_v == 1 else 4], (gPos(you_x + 1), gPos(18)))
+    else:
+        img_text.paste(img_you[2 if you_v == 1 else 1], (gPos(you_x + 1), gPos(18)))
 
-    # プテラノドン消去
-    writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
-    writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
-    # プテラノドン描画
-    writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
-    writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
+    # ボール描画
+    if ball_status > 2:
+        writeText(img_text, ball_old_x, ball_old_y, (0x20), COLOR_6)
+        if ball_status == 3:
+            writeText(img_text, ball_x, ball_y, (0xEC), COLOR_6)
+
+    else:
+        # プテラノドン消去
+        writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+        writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+        # プテラノドン描画
+        writeText(img_text, ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
+        writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
 
 
 ############################################################################### 
