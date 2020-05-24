@@ -103,6 +103,7 @@ ball_y = 0
 
 # スコア
 score = 100
+hiscore = 100
 
 # チャンス
 chance = 3
