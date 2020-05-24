@@ -248,22 +248,46 @@ def initializeRetry():
 # ゲーム処理
 ############################################################################### 
 def game():
-    global key, you_x, you_v, ball_status, ball_old_x, ball_old_y, ball_x, ball_y, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
+    global key, score, destroy, you_x, you_v, ball_status, ball_old_x, ball_old_y, ball_x, ball_y, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
 
     # ボールの処理
     if ball_status > 0:
         if ball_status == 4:
+            # ボール消す
             ball_status = 0
+
+        elif ball_status == 5:
+            # プテラノドン落ちる
+            ptera_old_x = ptera_x
+            ptera_old_y = ptera_y
+            ptera_y = ptera_y + 1
+            if ptera_y > 22:
+                ball_status = 0
+                destroy = destroy + 1
+                if destroy > 15:
+                    changeGameStatus(GAMESTATUS_CLEAR)
+                else:
+                    ptera_x = random.randint(14, 34)
+                    ptera_y = 16
+ 
         elif ball_status < 3:
             ball_status = ball_status + 1
+
         else:
             ball_old_x = ball_x
             ball_old_y = ball_y
             ball_x = ball_x + you_v
             ball_y = ball_y - 1
+
+            # ボールヒット？
+            if ball_x == ptera_x + 3 and ball_y == ptera_y:
+                score = score + 200 - ptera_y * 10
+                ball_status = 5
+
+            # ボール画面外？
             if ball_x < 12 or ball_x > 37 or ball_y < 5:
                 ball_status = 4
-            
+
     else:
         # YOU操作
         if key == KEY_LEFT and you_x > 10:
@@ -440,6 +464,14 @@ def drawGame():
         writeText(img_text, ball_old_x, ball_old_y, (0x20), COLOR_6)
         if ball_status == 3:
             writeText(img_text, ball_x, ball_y, (0xEC), COLOR_6)
+        if ball_status == 5:
+            # プテラノドン消去
+            writeText(img_text, ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+            writeText(img_text, ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+            if ptera_y < 23:
+                # プテラノドン描画
+                writeText(img_text, ptera_x    , ptera_y    , ptera[1][0], COLOR_1)
+                writeText(img_text, ptera_x + 2, ptera_y + 1, ptera[1][1], COLOR_1)
 
     else:
         # プテラノドン消去
