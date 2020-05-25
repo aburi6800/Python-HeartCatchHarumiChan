@@ -84,11 +84,11 @@ ptera_x = 25
 ptera_y = 16
 ptera_old_x = 25
 ptera_old_y = 16
-ptera_direction = 1
+ptera_pattern = 1
 
 # you
 you_x = 10
-you_v = 0
+you_v = 1
 
 # ボール
 ball_status = 0
@@ -117,6 +117,7 @@ def main():
     # 画面描画
     draw()
 
+
     # 処理
     if gameStatus == GAMESTATUS_TITLE:
         # タイトル処理
@@ -125,6 +126,11 @@ def main():
     elif gameStatus == GAMESTATUS_GAME:
         # ゲームメイン処理
         game()		
+
+    elif gameStatus == GAMESTATUS_MISS:
+        # ミス処理
+        miss()		
+
 
     # 時間進行
     gameTime = gameTime + 1
@@ -170,11 +176,15 @@ def changeGameStatus(status):
 # タイトル処理
 ############################################################################### 
 def title():
-    global key, title_x, harumi_y
+    global key, title_x, harumi_y, flash1_flg
 
     if gameTime == 1:
         title_x = -1
         harumi_y = -1
+
+    if gameTime < 9:
+        if gameTime % 2 == 0:
+            flash1_flg = True
 
     if gameTime == 10:
         title_x = 28
@@ -191,7 +201,7 @@ def title():
     if key == KEY_S:
         # ゲーム初期化
         initializeGame()
-        initializeRetry()
+        retryGame()
         changeGameStatus(GAMESTATUS_GAME)
 
     key = ""
@@ -216,19 +226,19 @@ def initializeGame():
 ############################################################################### 
 # ゲーム再開
 ############################################################################### 
-def initializeRetry():
-    global ptera_x, ptera_y, ptera_old_x, ptera_old_y, ptera_direction, you_x, you_v, ball_status, ball_x, ball_y, ball_old_x, ball_old_y
+def retryGame():
+    global ptera_x, ptera_y, ptera_old_x, ptera_old_y, ptera_pattern, you_x, you_v, ball_status, ball_x, ball_y, ball_old_x, ball_old_y
 
     # プテラノドン
     ptera_x = 25
     ptera_y = 16
     ptera_old_x = 25
     ptera_old_y = 16
-    ptera_direction = 1
+    ptera_pattern = 1
 
     # you
     you_x = 11
-    you_v = 0
+    you_v = 1
 
     # ボール
     ball_status = 0
@@ -242,13 +252,15 @@ def initializeRetry():
 # ゲーム処理
 ############################################################################### 
 def game():
-    global key, score, destroy, you_x, you_v, ball_status, ball_old_x, ball_old_y, ball_x, ball_y, ptera_direction, ptera_x, ptera_y, ptera_old_x, ptera_old_y
+    global key, score, destroy, you_x, you_v, ball_status, ball_old_x, ball_old_y, ball_x, ball_y, ptera_pattern, ptera_x, ptera_y, ptera_old_x, ptera_old_y
 
     # ボールの処理
     if ball_status > 0:
         if ball_status == 4:
             # ボール消す
             ball_status = 0
+            # 減点
+            score = score - 10
 
         elif ball_status == 5:
             # プテラノドン落ちる
@@ -273,16 +285,24 @@ def game():
             ball_x = ball_x + you_v
             ball_y = ball_y - 1
 
+            # ボール画面外？
+            if ball_x < 12 or ball_x > 37 or ball_y < 4:
+                ball_status = 4
+
             # ボールヒット？
             if ball_x == ptera_x + 3 and ball_y == ptera_y:
                 score = score + 200 - ptera_y * 10
                 ball_status = 5
 
-            # ボール画面外？
-            if ball_x < 12 or ball_x > 37 or ball_y < 4:
-                ball_status = 4
-
     else:
+        # ミス判定
+        if ptera_y == 3:
+            changeGameStatus(GAMESTATUS_MISS)
+
+        # ゲームオーバー判定
+        if score == 0:
+            changeGameStatus(GAMESTATUS_OVER)
+
         # YOU操作
         if key == KEY_LEFT and you_x > 10:
             you_x = you_x - 1
@@ -296,13 +316,15 @@ def game():
             ball_status = 1
             ball_x = you_x + (5 if you_v == 1 else 1)
             ball_y = 18
+            ball_old_x = ball_x
+            ball_old_y = ball_y
 
         # プテラノドンを動かす
         if gameTime % 2 == 0:
             ptera_old_x = ptera_x
             ptera_old_y = ptera_y
-            ptera_direction = 1 - ptera_direction
-            ptera_y = ptera_y + ptera_direction * -(random.randint(0, 5) < 4)
+            ptera_pattern = 1 - ptera_pattern
+            ptera_y = ptera_y + ptera_pattern * -(random.randint(0, 5) < 4)
             if ptera_x > 13 and ptera_x < 33:
                 ptera_x = ptera_x + (random.randint(0, 2) - 1)
 
@@ -310,10 +332,25 @@ def game():
 
 
 ############################################################################### 
+# ミス処理
+############################################################################### 
+def miss():
+    global chance
+
+    if gameTime > 50:
+        chance = chance - 1
+        if chance == 0:
+            changeGameStatus(GAMESTATUS_OVER)
+        else:
+            retryGame()
+            changeGameStatus(GAMESTATUS_GAME)
+
+
+############################################################################### 
 # 画面描画
 ############################################################################### 
 def draw():
-    global photoImage, flash1_flg
+    global photoImage, flash1_flg, flash2_flg
 
     # canvasのイメージ削除
     canvas.delete("SCREEN")
@@ -326,12 +363,21 @@ def draw():
         # ゲーム画面
         drawGame()
 
+    elif gameStatus == GAMESTATUS_MISS:
+        # ミス画面
+        drawMiss()
+
+    elif gameStatus == GAMESTATUS_OVER:
+        # ゲームオーバー画面
+        drawGameOver()
+
+
     # 画面表示用イメージ生成
     img_screen = img_text.copy()
 
     # フラッシュ１処理
     # うまくいってない
-    if flash1_flg:
+    if flash1_flg == True:
         flash1_flg = False
         plane = img_screen.split()
         _r = plane[0].point(lambda _: 0x01 if _ > 0x01 else 0x00, mode = "1")
@@ -340,6 +386,12 @@ def draw():
         img_mask = ImageChops.logical_and(_r, _g)
         img_mask = ImageChops.logical_and(img_mask, _b)
         img_screen.paste(Image.new("RGB", img_text.size, (255, 255, 255)), mask = img_mask)
+
+    # フラッシュ２処理
+    # うまくいってない
+    if flash2_flg == True:
+        flash2_flg = False
+        img_screen = Image.new("RGB", (SCREEN_WIDTH * 8, SCREEN_HEIGHT * 8), (0xFF, 0xFF, 0xFF))
 
     # 画面イメージを拡大
     img_screen = img_text.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
@@ -353,7 +405,7 @@ def draw():
 # タイトル画面描画
 ############################################################################### 
 def drawTitle():
-    global img_text, title_x, harumi_y, flash1_flg
+    global flash1_flg
 
     # 画面イメージ作成
     if gameTime == 1:
@@ -405,7 +457,6 @@ def drawTitle():
 # ゲーム画面描画
 ############################################################################### 
 def drawGame():
-    global img_text
 
     # 画面イメージ作成
     if gameTime == 1:
@@ -445,6 +496,15 @@ def drawGame():
         for i in range(39):
             writeText(i , 24, (0x85), COLOR_1)            
 
+        # チャンス
+        writeText(10, 2, (str(chance)), COLOR_7)
+
+    # スコア
+    writeText( 8, 0, ("{: 5}".format(score)), COLOR_7)
+
+    # プテラノドン残り
+    writeText(35, 0, ("{: 3}".format(destroy)), COLOR_7)
+
     # YOU描画
     if ball_status == 1:
         img_text.paste(img_you[5 if you_v == 1 else 3], (gPos(you_x + 1), gPos(18)))
@@ -472,9 +532,41 @@ def drawGame():
         writeText(ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
         writeText(ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
         # プテラノドン描画
-        writeText(ptera_x    , ptera_y    , ptera[ptera_direction + 1][0], COLOR_1)
-        writeText(ptera_x + 2, ptera_y + 1, ptera[ptera_direction + 1][1], COLOR_1)
+        writeText(ptera_x    , ptera_y    , ptera[ptera_pattern + 1][0], COLOR_1)
+        writeText(ptera_x + 2, ptera_y + 1, ptera[ptera_pattern + 1][1], COLOR_1)
 
+        # ハルミチャンのタイピング
+        if ptera_pattern == 0:
+            writeText( 2, 21, (0x94), COLOR_3)
+        else:
+            writeText( 2, 21, (0xEF), COLOR_3)
+
+
+############################################################################### 
+# ミス画面描画
+############################################################################### 
+def drawMiss():
+    global flash2_flg
+
+    if gameTime < 40 and gameTime % 2 == 0:
+        flash2_flg = True
+
+    else:
+        writeText( 0, 18, (0xB4, 0xB0, 0xDD, 0x21), COLOR_6)
+        writeText( 0, 19, (0x2E, 0x21, 0x2E), COLOR_6)
+        writeText( 0, 20, (0xEF, 0x78, 0xEE), COLOR_3)
+        writeText( 2, 21, (0x20), COLOR_3)
+       
+
+############################################################################### 
+# ゲームオーバー画面描画
+############################################################################### 
+def drawGameOver():
+
+    if gameTime < 40:
+        writeText( 39 - gameTime, 5, (0x20, 0x20, 0x20, 0x20, 0x20, 0x98, 0x20, 0x98, 0x95, 0x99, 0x98, 0x95, 0x99, 0x98, 0x91, 0x99, 0x91, 0x95, 0x99, 0x20, 0x98, 0x95, 0x99, 0x91, 0x20, 0x91, 0x91, 0x95, 0x99, 0x91, 0x95, 0x99, 0x20, 0x99, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
+        writeText(-39 + gameTime, 6, (0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x96, 0x20, 0x99, 0x93, 0x95, 0x92, 0x96, 0x96, 0x96, 0x93, 0x92, 0x20, 0x20, 0x96, 0x20, 0x96, 0x96, 0x20, 0x96, 0x93, 0x92, 0x20, 0x93, 0x91, 0x9B, 0x20, 0x96, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
+        writeText( 39 - gameTime, 7, (0x20, 0x20, 0x20, 0x20, 0x20, 0x9A, 0x20, 0x9A, 0x95, 0x9B, 0x90, 0x20, 0x90, 0x90, 0x20, 0x90, 0x90, 0x95, 0x9B, 0x20, 0x9A, 0x95, 0x9B, 0x9A, 0x95, 0x9B, 0x90, 0x95, 0x9B, 0x90, 0x9A, 0x9B, 0x20, 0x9B, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
 
 ############################################################################### 
 # テキスト描画
