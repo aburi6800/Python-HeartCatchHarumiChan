@@ -290,7 +290,7 @@ def game():
                 ball_status = 4
 
             # ボールヒット？
-            if ball_x == ptera_x + 3 and ball_y == ptera_y:
+            if ball_x == ptera_x + 2 and ball_y == ptera_y:
                 score = score + 200 - ptera_y * 10
                 ball_status = 5
 
@@ -303,30 +303,32 @@ def game():
         if score == 0:
             changeGameStatus(GAMESTATUS_OVER)
 
-        # YOU操作
-        if key == KEY_LEFT and you_x > 10:
-            you_x = you_x - 1
-            you_v = -1
-
-        if key == KEY_RIGHT and you_x < 36:
-            you_x = you_x + 1
-            you_v = 1
-
-        if key == KEY_SPACE and ball_status == False:
+        # ボール投げる？
+        if key == KEY_SPACE and ball_status == 0:
             ball_status = 1
             ball_x = you_x + (5 if you_v == 1 else 1)
             ball_y = 18
             ball_old_x = ball_x
             ball_old_y = ball_y
 
-        # プテラノドンを動かす
-        if gameTime % 2 == 0:
-            ptera_old_x = ptera_x
-            ptera_old_y = ptera_y
-            ptera_pattern = 1 - ptera_pattern
-            ptera_y = ptera_y + ptera_pattern * -(random.randint(0, 5) < 4)
-            if ptera_x > 13 and ptera_x < 33:
-                ptera_x = ptera_x + (random.randint(0, 2) - 1)
+        else:
+            # YOU操作
+            if key == KEY_LEFT and you_x > 10:
+                you_x = you_x - 1
+                you_v = -1
+
+            if key == KEY_RIGHT and you_x < 35:
+                you_x = you_x + 1
+                you_v = 1
+
+            # プテラノドンを動かす
+            if gameTime % 2 == 0:
+                ptera_old_x = ptera_x
+                ptera_old_y = ptera_y
+                ptera_pattern = 1 - ptera_pattern
+                ptera_y = ptera_y + ptera_pattern * -(random.randint(0, 5) < 4)
+                if ptera_x > 13 and ptera_x < 33:
+                    ptera_x = ptera_x + (random.randint(0, 2) - 1)
 
     key = ""
 
@@ -503,7 +505,7 @@ def drawGame():
     writeText( 8, 0, ("{: 5}".format(score)), COLOR_7)
 
     # プテラノドン残り
-    writeText(35, 0, ("{: 3}".format(destroy)), COLOR_7)
+    writeText(34, 0, ("{: 3}".format(destroy)), COLOR_7)
 
     # YOU描画
     if ball_status == 1:
