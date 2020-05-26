@@ -107,6 +107,12 @@ chance = 3
 # プテラノドンを倒した数
 destroy = 0
 
+# ハートの座標
+heart_x = 2
+heart_y = 19
+heart_old_x = 0
+heart_old_y = 0
+
 
 ############################################################################### 
 # メイン処理
@@ -130,6 +136,14 @@ def main():
     elif gameStatus == GAMESTATUS_MISS:
         # ミス処理
         miss()		
+
+    elif gameStatus == GAMESTATUS_OVER:
+        # ゲームオーバー処理
+        gameover()		
+
+    elif gameStatus == GAMESTATUS_CLEAR:
+        # ゲームクリア処理
+        gameclear()
 
 
     # 時間進行
@@ -198,7 +212,7 @@ def title():
     if gameTime > 40 and gameTime < 55:
         harumi_y = (harumi_y + 1) if harumi_y < 16 else 15
 
-    if key == KEY_S:
+    if gameTime > 55 and key == KEY_S:
         # ゲーム初期化
         initializeGame()
         retryGame()
@@ -211,7 +225,7 @@ def title():
 # ゲーム初期化
 ############################################################################### 
 def initializeGame():
-    global score, chance, destroy
+    global score, chance, destroy, heart_x, heart_y, heart_old_x, heart_old_y
 
     # スコア
     score = 100
@@ -221,6 +235,12 @@ def initializeGame():
 
     # プテラノドンを倒した数
     destroy = 0
+
+    # ハートの座標
+    heart_x = 2
+    heart_y = 19
+    heart_old_x = 0
+    heart_old_y = 0
 
 
 ############################################################################### 
@@ -270,9 +290,12 @@ def game():
             if ptera_y > 22:
                 ball_status = 0
                 destroy = destroy + 1
-                if destroy > 15:
+#                if destroy > 15:
+                if destroy > 3:
                     changeGameStatus(GAMESTATUS_CLEAR)
                 else:
+                    ptera_old_x = ptera_x
+                    ptera_old_y = 22
                     ptera_x = random.randint(14, 34)
                     ptera_y = 16
  
@@ -339,13 +362,45 @@ def game():
 def miss():
     global chance
 
-    if gameTime > 50:
+    if gameTime > 30:
         chance = chance - 1
         if chance == 0:
             changeGameStatus(GAMESTATUS_OVER)
         else:
             retryGame()
             changeGameStatus(GAMESTATUS_GAME)
+
+
+############################################################################### 
+# ゲームオーバー処理
+############################################################################### 
+def gameover():
+    global hiscore
+
+    if gameTime == 1:
+        if score > hiscore:
+            hiscore = score
+    
+    if gameTime > 40 and key == KEY_S:
+        changeGameStatus(GAMESTATUS_TITLE)
+
+
+############################################################################### 
+# ゲームクリア処理
+############################################################################### 
+def gameclear():
+    global heart_x, heart_y, heart_old_x, heart_old_y
+
+    if gameTime % 2 == 0:
+        heart_old_x = heart_x
+        heart_old_y = heart_y
+
+        heart_x = heart_x + 1
+        if heart_x < 18:
+            heart_y = heart_y + random.randint(0, 2) - 1 - (heart_y > 19)
+
+    if gameTime == 40:
+        changeGameStatus(GAMESTATUS_OVER)
 
 
 ############################################################################### 
@@ -372,6 +427,10 @@ def draw():
     elif gameStatus == GAMESTATUS_OVER:
         # ゲームオーバー画面
         drawGameOver()
+
+    elif gameStatus == GAMESTATUS_CLEAR:
+        # ゲームクリア画面
+        drawGameClear()
 
 
     # 画面表示用イメージ生成
@@ -569,6 +628,35 @@ def drawGameOver():
         writeText( 39 - gameTime, 5, (0x20, 0x20, 0x20, 0x20, 0x20, 0x98, 0x20, 0x98, 0x95, 0x99, 0x98, 0x95, 0x99, 0x98, 0x91, 0x99, 0x91, 0x95, 0x99, 0x20, 0x98, 0x95, 0x99, 0x91, 0x20, 0x91, 0x91, 0x95, 0x99, 0x91, 0x95, 0x99, 0x20, 0x99, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
         writeText(-39 + gameTime, 6, (0x20, 0x20, 0x20, 0x20, 0x20, 0x96, 0x20, 0x96, 0x20, 0x99, 0x93, 0x95, 0x92, 0x96, 0x96, 0x96, 0x93, 0x92, 0x20, 0x20, 0x96, 0x20, 0x96, 0x96, 0x20, 0x96, 0x93, 0x92, 0x20, 0x93, 0x91, 0x9B, 0x20, 0x96, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
         writeText( 39 - gameTime, 7, (0x20, 0x20, 0x20, 0x20, 0x20, 0x9A, 0x20, 0x9A, 0x95, 0x9B, 0x90, 0x20, 0x90, 0x90, 0x20, 0x90, 0x90, 0x95, 0x9B, 0x20, 0x9A, 0x95, 0x9B, 0x9A, 0x95, 0x9B, 0x90, 0x95, 0x9B, 0x90, 0x9A, 0x9B, 0x20, 0x9B, 0x20, 0x20, 0x20, 0x20, 0x20), COLOR_4)
+
+    if gameTime == 40:
+        writeText(12, 17, ("HI-SCORE : " + str(hiscore) + " Pts."), COLOR_6)
+        writeText(15, 20, ("PUSH [S] !"), COLOR_7)
+       
+
+############################################################################### 
+# ゲームクリア画面描画
+############################################################################### 
+def drawGameClear():
+
+    if gameTime == 1:
+        writeText(ptera_old_x    , ptera_old_y    , ptera[0][0], COLOR_1)
+        writeText(ptera_old_x + 2, ptera_old_y + 1, ptera[0][1], COLOR_1)
+
+    if gameTime < 40:
+        if heart_old_x > 0 and heart_old_y > 0:
+            writeText(heart_old_x, heart_old_y, (0x20), COLOR_2)
+        writeText(heart_x    , heart_y    , (0xE9), COLOR_2)
+
+    else:
+        writeText(heart_x, heart_y, (0x20), COLOR_2)
+        writeText(17, 10, (0x20, 0xE9, 0xE9, 0x20, 0xE9, 0xE9, 0x20), COLOR_2)
+        writeText(17, 11, (0xE9, 0x20, 0x20, 0xE9, 0x20, 0x20, 0xE9), COLOR_2)
+        writeText(17, 12, (0xE9, 0x20, 0x20, 0x20, 0x20, 0x20, 0xE9), COLOR_2)
+        writeText(17, 13, (0x20, 0xE9, 0x20, 0x20, 0x20, 0xE9, 0x20), COLOR_2)
+        writeText(17, 14, (0x20, 0x20, 0xE9, 0x20, 0xE9, 0x20, 0x20), COLOR_2)
+        writeText(17, 15, (0x20, 0x20, 0x20, 0xE9, 0x20, 0x20, 0x20), COLOR_2)
+
 
 ############################################################################### 
 # テキスト描画
