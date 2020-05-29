@@ -292,8 +292,8 @@ def game():
             if ptera_y > 22:
                 ball_status = 0
                 destroy = destroy + 1
-#                if destroy > 15:
-                if destroy > 3:
+                if destroy > 15:
+#                if destroy > 3:
                     changeGameStatus(GAMESTATUS_CLEAR)
                 else:
                     ptera_old_x = ptera_x
