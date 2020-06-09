@@ -448,16 +448,15 @@ def draw():
         _b = plane[2].point(lambda _: 0x01 if _ > 0x01 else 0x00, mode = "1")
         img_mask = ImageChops.logical_and(_r, _g)
         img_mask = ImageChops.logical_and(img_mask, _b)
-        img_screen.paste(Image.new("RGB", img_text.size, (255, 255, 255)), mask = img_mask)
+        img_screen.paste(Image.new("RGB", img_text.size, (200, 200, 200)), mask = img_mask)
 
     # フラッシュ２処理
-    # うまくいってない
     if flash2_flg == True:
         flash2_flg = False
-        img_screen = Image.new("RGB", (SCREEN_WIDTH * 8, SCREEN_HEIGHT * 8), (0xFF, 0xFF, 0xFF))
+        img_screen = Image.new("RGB", (SCREEN_WIDTH * 8, SCREEN_HEIGHT * 8), (0xFA, 0xFA, 0xFA))
 
     # 画面イメージを拡大
-    img_screen = img_text.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
+    img_screen = img_screen.resize((img_screen.width * 2, img_screen.height * 2), Image.NEAREST)
 
     # オフスクリーンでPhotoImage生成
     photoImage = ImageTk.PhotoImage(img_screen)
